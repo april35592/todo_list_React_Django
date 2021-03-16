@@ -16,8 +16,6 @@ class App extends Component {
     }
   };
 
-
-
   render() {
     const todoAdd = function(_todo) {
       this.setState({
@@ -29,18 +27,42 @@ class App extends Component {
       });
     }
     
-    const todoDelete = function(e) {
-
+    const todoDelete = function(todo_id) {
+      let _todo = Array.from(this.state.todo);
+      for(var i=0; i<_todo.length; i++) {
+        if(_todo[i].id === todo_id) {
+          _todo.splice(i,1);
+          this.setState({
+            todo: _todo,
+          });
+        }
+      }
     }
 
-    const todoChecked = function(e) {
-
+    const todoChecked = function(todo_id) {
+      let _todo = Array.from(this.state.todo);
+      for(var i=0; i<_todo.length; i++) {
+        if(_todo[i].id === todo_id) {
+          if(_todo[i].checked === true) {
+            _todo[i].checked = false;
+          } else {
+            _todo[i].checked = true;
+          }
+          this.setState({
+            todo: _todo,
+          });
+        }
+      }
     }
 
     return (
       <div>
         <Form todoSubmit={todoAdd.bind(this)} />
-        <ToDo todoList={this.state.todo} todoDelete={todoDelete} todoChecked={todoChecked} />
+        <ToDo
+          todoList={this.state.todo}
+          todoDelete={todoDelete.bind(this)}
+          todoChecked={todoChecked.bind(this)}
+        />
       </div>
     );
   }
