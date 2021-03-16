@@ -56,7 +56,7 @@ class App extends Component {
     }
 
     return (
-      <div>
+      <div id='App'>
         <Form todoSubmit={todoAdd.bind(this)} />
         <ToDo
           todoList={this.state.todo}

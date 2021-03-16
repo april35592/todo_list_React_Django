@@ -7,14 +7,17 @@ class ToDo extends Component {
       <ul>
         {this.props.todoList.map(item => {
           return (
-            <li id={item.id}>
+            <li key={item.id} id={item.id}>
               {item.todo}
-              <button onClick={function(e) {
-                this.props.todoDelete(item.id)
-              }.bind(this)}>×</button>
-              <button onClick={function(e) {
-                this.props.todoChecked(item.id)
-              }.bind(this)}>✓</button>
+              <span className='right'>
+                <button onClick={function(e) {
+                  this.props.todoDelete(item.id);
+                }.bind(this)}>×</button>
+                <button onClick={function(e) {
+                  document.getElementById(item.id).classList.toggle("checked");
+                  this.props.todoChecked(item.id);
+                }.bind(this)}>✓</button>
+              </span>
             </li>
           )
         })}
