@@ -6,40 +6,41 @@ import './App.css';
 class App extends Component {
   constructor(props){
     super(props);
-    this.todo_id = 3;
+    let todoLoaded = localStorage.getItem(ToDo);
+    if(todoLoaded !== null) {
+      todoLoaded = JSON.parse(todoLoaded);
+      this.todo_id = todoLoaded[todoLoaded.length - 1].id + 1;
+    } else {
+      todoLoaded = [];
+      this.todo_id = 1;
+    }
     this.state = {
-      todo: [
-        {id: 0, todo: '운동', checked: false},
-        {id: 1, todo: '독서', checked: false},
-        {id: 2, todo: '영단어 암기', checked: false},
-      ]
+      todo: todoLoaded,
     }
   };
 
   render() {
-    const todoAdd = function(_todo) {
-      this.setState({
-        todo: this.state.todo.concat({
-          id: this.todo_id++,
-          todo: _todo,
-          checked: false,
-        })
+    const todoAdd = (todo_text) => {
+      const _todo = this.state.todo.concat({
+        id: this.todo_id++,
+        todo: todo_text,
+        checked: false,
       });
+      todoSaved(_todo);
     }
     
-    const todoDelete = function(todo_id) {
+    const todoDelete = (todo_id) => {
       let _todo = Array.from(this.state.todo);
       for(var i=0; i<_todo.length; i++) {
         if(_todo[i].id === todo_id) {
           _todo.splice(i,1);
-          this.setState({
-            todo: _todo,
-          });
+          todoSaved(_todo);
+          break;
         }
       }
     }
 
-    const todoChecked = function(todo_id) {
+    const todoChecked = (todo_id) => {
       let _todo = Array.from(this.state.todo);
       for(var i=0; i<_todo.length; i++) {
         if(_todo[i].id === todo_id) {
@@ -48,11 +49,17 @@ class App extends Component {
           } else {
             _todo[i].checked = true;
           }
-          this.setState({
-            todo: _todo,
-          });
+          todoSaved(_todo);
+          break;
         }
       }
+    }
+
+    const todoSaved = (_todo) => {
+      localStorage.setItem(ToDo, JSON.stringify(_todo));
+      this.setState({
+        todo: _todo,
+      });
     }
 
     return (
