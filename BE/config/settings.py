@@ -37,7 +37,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-#            os.path.join(BASE_DIR, 'FE', 'build'),
+            BASE_DIR / 'build',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -85,7 +85,17 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
-CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000' ,'http://localhost:3000']
+STATICFILES_DIRS = [
+    BASE_DIR / 'build/static',
+]
+
+CORS_ORIGIN_WHITELIST = [
+'http://127.0.0.1:3000',
+'http://localhost:3000',
+'http://127.0.0.1:8000',
+'http://localhost:8000',
+]
+
 CORS_ALLOW_CREDENTIALS = True
