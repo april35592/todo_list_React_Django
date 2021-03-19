@@ -51,6 +51,7 @@ class App extends Component {
       } else {
         todoModify(todo_text);
       }
+      todoModifyEnd()
     }
 
     const todoAdd = (todo_text) => {
@@ -75,7 +76,7 @@ class App extends Component {
     
     const todoModifyStart = (todo) => {
       if (this.state.modify.id === todo.id) {
-        EndModify()
+        todoModifyEnd()
       } else {
         this.setState({
           modify: {
@@ -87,6 +88,16 @@ class App extends Component {
       }
     }
 
+    const todoModifyOnChange = (e) => {
+      this.setState({
+        modify: {
+          mode: this.state.modify.mode,
+          id: this.state.modify.id,
+          todo: e.target.value,
+        },
+      })
+    }
+
     const todoModify = (todo_text) => {
       let csrftoken = getCookie('csrftoken');
       fetch(`http://localhost:8000/todo/update/${this.state.modify.id}/`, {
@@ -96,15 +107,14 @@ class App extends Component {
           'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-          todo: todo_text,
+          todo: this.state.modify.todo,
         })
       }).then(() => {
         this.fetchToDo()
-        EndModify()
       })
     }
 
-    const EndModify = () => {     
+    const todoModifyEnd = () => {     
       this.setState({
         modify:{
           mode: false,
@@ -157,6 +167,7 @@ class App extends Component {
         <Form
         todoSubmit={todoSubmit}
         modeModify={this.state.modify}
+        onChangeModify={todoModifyOnChange}
         />
         <ToDo
           todoList={this.state.todo}

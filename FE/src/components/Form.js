@@ -9,7 +9,15 @@ class Form extends Component {
         this.props.todoSubmit(e.target.todo.value);
         e.target.todo.value = '';
       }.bind(this)}>
-        <input type='text' name='todo' className={this.props.modeModify.mode?'modify':''} placeholder='오늘 할 일을 입력하세요' defaultValue={value}/>
+        <input
+          type='text'
+          name='todo'
+          className={this.props.modeModify.mode?'modify':''}
+          placeholder='오늘 할 일을 입력하세요'
+          value={value}
+          onChange={this.props.onChangeModify}
+          autocomplete="off"
+        />
         <input type='submit' value='+' />
       </form>
     );
