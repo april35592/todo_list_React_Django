@@ -11,11 +11,11 @@ from .models import ToDo
 @api_view(['GET'])
 def todoOverview(request):
     api_urls = {
-        'List':'/todo-list/',
-        'Detail':'/todo-detail/<str:pk>/',
-        'Create':'/todo-create/',
-        'Update':'/todo-update/<str:pk>/',
-        'Delete':'/todo-delete/<str:pk>/',
+        'List':'/list/',
+        'Detail':'/detail/<str:pk>/',
+        'Create':'/create/',
+        'Update':'/update/<str:pk>/',
+        'Delete':'/delete/<str:pk>/',
     }
     return Response(api_urls)
 
@@ -52,7 +52,3 @@ def todoDelete(request, pk):
     todo = ToDo.objects.get(id=pk)
     todo.delete()
     return Response('ToDo delete')
-
-#class ToDoListView(generics.ListAPIView):
-#    serializer_class = ToDoSerializer
-#    queryset = ToDo.objects.all()

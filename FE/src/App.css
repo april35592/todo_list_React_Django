@@ -23,6 +23,10 @@ input[type='text'] {
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 
+input[type='text'].modify  {
+  border: solid 1px white;
+}
+
 input[type='submit'] {
   display: none;
 }
@@ -36,6 +40,10 @@ ul {
 
 li {
   height: 28px;
+}
+
+li.modify {
+  text-decoration: underline;
 }
 
 button {

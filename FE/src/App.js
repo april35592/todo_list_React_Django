@@ -8,7 +8,11 @@ class App extends Component {
     super(props);
     this.state = {
       todo: [],
-      modify: false,
+      modify: {
+        mode: false,
+        id: 0,
+        todo: '',
+      },
     }
     this.fetchToDo.bind(this);
   };
@@ -18,7 +22,7 @@ class App extends Component {
   }
 
   fetchToDo() {
-    fetch('http://localhost:8000/todo/todo-list/')
+    fetch('http://localhost:8000/todo/list/')
     .then(response => response.json())
     .then((data) => this.setState({
       todo: data,
@@ -26,14 +30,6 @@ class App extends Component {
   }
 
   render() {
-    const todoSubmit = (todo_text) => {
-      if(this.state.modify === false) {
-        todoAdd(todo_text);
-      } else {
-        todoModify(todo_text);
-      }
-    }
-
     const getCookie = (name) => {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {
@@ -49,9 +45,17 @@ class App extends Component {
       return cookieValue;
     }
 
+    const todoSubmit = (todo_text) => {
+      if(this.state.modify.mode === false) {
+        todoAdd(todo_text);
+      } else {
+        todoModify(todo_text);
+      }
+    }
+
     const todoAdd = (todo_text) => {
       const csrftoken = getCookie('csrftoken');
-      fetch('http://localhost:8000/todo/todo-create/', {
+      fetch('http://localhost:8000/todo/create/', {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -70,23 +74,49 @@ class App extends Component {
     }
     
     const todoModifyStart = (todo) => {
-      this.setState({
-        modify: true,
-      });
+      if (this.state.modify.id === todo.id) {
+        EndModify()
+      } else {
+        this.setState({
+          modify: {
+            mode: true,
+            id: todo.id,
+            todo: todo.todo,
+          }
+        });
+      }
     }
 
     const todoModify = (todo_text) => {
-      let _todo = Array.from(this.state.todo);
-      for(let i=0; i<_todo.length; i++) {
-        _todo[i].todo = todo_text;
-        todoSaved(_todo);
-        break;
-      }
+      let csrftoken = getCookie('csrftoken');
+      fetch(`http://localhost:8000/todo/update/${this.state.modify.id}/`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+          todo: todo_text,
+        })
+      }).then(() => {
+        this.fetchToDo()
+        EndModify()
+      })
+    }
+
+    const EndModify = () => {     
+      this.setState({
+        modify:{
+          mode: false,
+          id: 0,
+          todo: '',
+        }
+      })
     }
 
     const todoDelete = (todo) => {
       let csrftoken = getCookie('csrftoken');
-      fetch(`http://localhost:8000/todo/todo-delete/${todo.id}/`, {
+      fetch(`http://localhost:8000/todo/delete/${todo.id}/`, {
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',
@@ -100,7 +130,7 @@ class App extends Component {
     const todoChecked = (todo) => {
       let csrftoken = getCookie('csrftoken');
       todo.checked = !todo.checked;
-      fetch(`http://localhost:8000/todo/todo-update/${todo.id}/`, {
+      fetch(`http://localhost:8000/todo/update/${todo.id}/`, {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -126,10 +156,11 @@ class App extends Component {
       <div id='App'>
         <Form
         todoSubmit={todoSubmit}
-        submitMode={this.state.modify}
+        modeModify={this.state.modify}
         />
         <ToDo
           todoList={this.state.todo}
+          modeModify={this.state.modify}
           todoModify={todoModifyStart}
           todoDelete={todoDelete}
           todoChecked={todoChecked}

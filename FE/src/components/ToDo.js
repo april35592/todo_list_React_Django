@@ -7,8 +7,10 @@ class ToDo extends Component {
       <ul>
         {this.props.todoList.map(item => {
           return (
-            <li key={item.id} id={item.id} class={item.checked?'checked':''}>
-              {item.todo}
+            <li key={item.id} id={item.id} className={item.id === this.props.modeModify.id?'modify':''}>
+              <span className={item.checked?'checked':''}>
+                {item.todo}
+              </span>
               <span className='right'>
                 <button onClick={function(e) {
                   this.props.todoModify(item);
