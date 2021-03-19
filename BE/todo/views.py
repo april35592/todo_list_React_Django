@@ -42,7 +42,7 @@ def todoCreate(request):
 def todoUpdate(request, pk):
     todo = ToDo.objects.get(id=pk)
     serializer = ToDoSerializer(instance=todo, data=request.data)
-    if serializer.is_valid:
+    if serializer.is_valid():
         serializer.save()
     return Response(serializer.data)
 

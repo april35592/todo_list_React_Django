@@ -6,53 +6,113 @@ import './App.css';
 class App extends Component {
   constructor(props){
     super(props);
-    let todoLoaded = localStorage.getItem(ToDo);
-    if(todoLoaded !== null) {
-      todoLoaded = JSON.parse(todoLoaded);
-      this.todo_id = todoLoaded[todoLoaded.length - 1].id + 1;
-    } else {
-      todoLoaded = [];
-      this.todo_id = 1;
-    }
     this.state = {
-      todo: todoLoaded,
+      todo: [],
+      modify: false,
     }
+    this.fetchToDo.bind(this);
   };
 
+  componentWillMount() {
+    this.fetchToDo()
+  }
+
+  fetchToDo() {
+    fetch('http://localhost:8000/todo/todo-list/')
+    .then(response => response.json())
+    .then((data) => this.setState({
+      todo: data,
+    }));
+  }
+
   render() {
-    const todoAdd = (todo_text) => {
-      const _todo = this.state.todo.concat({
-        id: this.todo_id++,
-        todo: todo_text,
-        checked: false,
-      });
-      todoSaved(_todo);
-    }
-    
-    const todoDelete = (todo_id) => {
-      let _todo = Array.from(this.state.todo);
-      for(var i=0; i<_todo.length; i++) {
-        if(_todo[i].id === todo_id) {
-          _todo.splice(i,1);
-          todoSaved(_todo);
-          break;
-        }
+    const todoSubmit = (todo_text) => {
+      if(this.state.modify === false) {
+        todoAdd(todo_text);
+      } else {
+        todoModify(todo_text);
       }
     }
 
-    const todoChecked = (todo_id) => {
-      let _todo = Array.from(this.state.todo);
-      for(var i=0; i<_todo.length; i++) {
-        if(_todo[i].id === todo_id) {
-          if(_todo[i].checked === true) {
-            _todo[i].checked = false;
-          } else {
-            _todo[i].checked = true;
+    const getCookie = (name) => {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
           }
-          todoSaved(_todo);
-          break;
         }
       }
+      return cookieValue;
+    }
+
+    const todoAdd = (todo_text) => {
+      const csrftoken = getCookie('csrftoken');
+      fetch('http://localhost:8000/todo/todo-create/', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+          id: null,
+          todo: todo_text,
+          checked: false,
+        })
+      }).then((response) => {
+        this.fetchToDo()
+      }).catch(function(error) {
+        console.log('ERROR:', error)
+      })
+    }
+    
+    const todoModifyStart = (todo) => {
+      this.setState({
+        modify: true,
+      });
+    }
+
+    const todoModify = (todo_text) => {
+      let _todo = Array.from(this.state.todo);
+      for(let i=0; i<_todo.length; i++) {
+        _todo[i].todo = todo_text;
+        todoSaved(_todo);
+        break;
+      }
+    }
+
+    const todoDelete = (todo) => {
+      let csrftoken = getCookie('csrftoken');
+      fetch(`http://localhost:8000/todo/todo-delete/${todo.id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+      }).then((response) => {
+        this.fetchToDo()
+      })
+    }
+
+    const todoChecked = (todo) => {
+      let csrftoken = getCookie('csrftoken');
+      todo.checked = !todo.checked;
+      fetch(`http://localhost:8000/todo/todo-update/${todo.id}/`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+          todo: todo.todo,
+          checked: todo.checked,
+        })
+      }).then(() => {
+        this.fetchToDo()
+      })
     }
 
     const todoSaved = (_todo) => {
@@ -64,11 +124,15 @@ class App extends Component {
 
     return (
       <div id='App'>
-        <Form todoSubmit={todoAdd.bind(this)} />
+        <Form
+        todoSubmit={todoSubmit}
+        submitMode={this.state.modify}
+        />
         <ToDo
           todoList={this.state.todo}
-          todoDelete={todoDelete.bind(this)}
-          todoChecked={todoChecked.bind(this)}
+          todoModify={todoModifyStart}
+          todoDelete={todoDelete}
+          todoChecked={todoChecked}
         />
       </div>
     );
