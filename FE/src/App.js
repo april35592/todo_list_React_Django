@@ -155,13 +155,6 @@ class App extends Component {
       })
     }
 
-    const todoSaved = (_todo) => {
-      localStorage.setItem(ToDo, JSON.stringify(_todo));
-      this.setState({
-        todo: _todo,
-      });
-    }
-
     return (
       <div id='App'>
         <Form
